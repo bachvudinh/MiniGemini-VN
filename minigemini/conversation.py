@@ -14,7 +14,7 @@ class SeparatorStyle(Enum):
     PLAIN = auto()
     LLAMA_2 = auto()
     GEMMA = auto()
-
+    VISTRAL = auto()
 
 @dataclasses.dataclass
 class Conversation:
@@ -102,6 +102,27 @@ class Conversation:
                     ret += "<start_of_turn>" + role + "\n" + message + "<end_of_turn>\n" + seps[i % 2]
                 else:
                     ret += "<start_of_turn>" + role + "\n"
+        elif self.sep_style == SeparatorStyle.VISTRAL:
+            wrap_sys = lambda msg: f"<<SYS>>\n{msg}\n<</SYS>>\n\n" if len(msg) > 0 else msg
+            wrap_inst = lambda msg: f"<s>[INST] {msg} [/INST]"
+            ret = ""
+
+            for i, (role, message) in enumerate(messages):
+                if i == 0:
+                    assert message, "first message should not be none"
+                    assert role == self.roles[0], "first message should come from user"
+                if message:
+                    if type(message) is tuple:
+                        message, _, _ = message
+                    if i == 0: message = wrap_sys(self.system) + message
+                    if i % 2 == 0:
+                        message = wrap_inst(message)
+                        ret += self.sep + message
+                    else:
+                        ret += " " + message + " " + self.sep2
+                else:
+                    ret += ""
+            ret = ret.lstrip(self.sep)
         elif self.sep_style == SeparatorStyle.PLAIN:
             seps = [self.sep, self.sep2]
             ret = self.system
@@ -396,6 +417,16 @@ conv_phi_2 = Conversation(
     sep=" ",
     sep2="<|endoftext|>",
 )
+conv_llava_mistral = Conversation(
+    system="",
+    roles=("user", "assistant"),
+    version="llama_v2",
+    messages=(),
+    offset=0,
+    sep_style=SeparatorStyle.VISTRAL,
+    sep="",
+    sep2="</s>",
+)
 
 conv_mistral_instruct = Conversation(
     system="",
@@ -451,6 +482,7 @@ conv_templates = {
     "llava_v1": conv_llava_v1,
     "v1_mmtag": conv_llava_v1_mmtag,
     "llava_llama_2": conv_llava_llama_2,
+    "vistral-it": conv_llava_mistral,
 
     "mpt": conv_mpt,
 }
