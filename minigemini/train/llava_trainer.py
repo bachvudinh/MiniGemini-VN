@@ -322,9 +322,11 @@ class LLaVATrainer(Trainer):
             # )
             if self.args.local_rank == 0 or self.args.local_rank == -1:
                 self.model.config.save_pretrained(output_dir)
-                self.model.save_pretrained(output_dir, state_dict=weight_to_save)
+                # self.model.save_pretrained(output_dir, state_dict=weight_to_save)
                 torch.save(weight_to_save, os.path.join(output_dir, f'mm_projector.bin'))
-                # self.state.save_to_json(os.path.join(output_dir, f'trainer_state.json'))
+                state_dict = self.model.state_dict()
+                with open(os.path.join(output_dir, 'model_state_dict.json'), 'w') as f:
+                    json.dump(state_dict, f)
         else:
             super(LLaVATrainer, self)._save_checkpoint(model, trial, metrics)
             if getattr(self.args, 'lora_enable', False):

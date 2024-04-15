@@ -1124,7 +1124,8 @@ def train(attn_implementation=None):
         ))
 
     if model_args.vision_tower is not None:
-        if "mistral" in model_args.model_name_or_path or "vistral" in model_args.model_name_or_path:
+        if "mistral" in model_args.model_name_or_path.lower() or "vistral" in model_args.model_name_or_path.lower():
+            print("Loading Model using MiniGeminiMistral")
             model = MiniGeminiMistralForCausalLM.from_pretrained(
                 model_args.model_name_or_path,
                 cache_dir=training_args.cache_dir,
