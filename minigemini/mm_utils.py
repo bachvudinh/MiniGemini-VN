@@ -103,3 +103,21 @@ class KeywordsStoppingCriteria(StoppingCriteria):
         for i in range(output_ids.shape[0]):
             outputs.append(self.call_for_batch(output_ids[i].unsqueeze(0), scores))
         return all(outputs)
+    
+
+if __name__ == '__main__':
+    from transformers import GPT2Tokenizer
+    
+    # Load a pre-trained tokenizer
+    print('Import GPT2 tokenizer')
+    tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+    IMAGE_TOKEN_INDEX = 50257  # Make sure this index is not used by other tokens
+
+    # Example prompt
+    prompt = "This is an example of text with an <image> tag, which will be replaced by an image token."
+
+    # Call the function
+    tokenized_input = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt')
+
+    # Printing the output for demonstration
+    print(tokenized_input)
