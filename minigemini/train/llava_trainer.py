@@ -1,7 +1,7 @@
 import os
 import torch
 import torch.nn as nn
-
+import json
 from torch.utils.data import Sampler
 
 from transformers import Trainer
@@ -325,7 +325,7 @@ class LLaVATrainer(Trainer):
                 # self.model.save_pretrained(output_dir, state_dict=weight_to_save)
                 torch.save(weight_to_save, os.path.join(output_dir, f'mm_projector.bin'))
                 state_dict = self.model.state_dict()
-                with open(os.path.join(output_dir, 'model_state_dict.json'), 'w') as f:
+                with open(os.path.join(output_dir, 'trainer_state.json'), 'w') as f:
                     json.dump(state_dict, f)
         else:
             super(LLaVATrainer, self)._save_checkpoint(model, trial, metrics)
